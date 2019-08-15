@@ -47,8 +47,8 @@ class X5APK {
 
     void getAll() {
         getFile(apkPath);
-        delete(new File(zipsPath));
-        System.out.println("所有zip文件已删除！");
+        // delete(new File(zipsPath));
+        // System.out.println("所有zip文件已删除！");
         System.out.println("全部bgm文件、bytes文件解压完毕！");
         new Bytes(bytesPath).toXML();// 转化bytes文件
     }

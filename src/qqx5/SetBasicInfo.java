@@ -28,7 +28,6 @@ class SetBasicInfo {
     private int st1Box;
     private int note2Box;
     private int st2Box;
-    private int[][] noteType;// 按键类型，具体规定在 XMLInfo 类中
     private boolean[] resetBoxFlag;// 标记为 true，说明这个位置的按键数字重置为 1
     private int[] noteNum1;// 泡泡按键数字
     private int[][] noteNum2;// 泡泡按键数字
@@ -98,7 +97,7 @@ class SetBasicInfo {
                     int boxNum = getBox(s, a, 13);
                     // 存到滑键结束位置的轨道，不与长条结尾的按键冲突
                     a.track[end_track][boxNum] = 1;
-                    this.noteType[end_track][boxNum] = target_track * 10 + end_track;
+                    a.noteType[end_track][boxNum] = target_track * 10 + end_track;
                     a.isLongNoteEnd[end_track][boxNum] = false;
                     a.isLongNoteStart[end_track][boxNum] = false;
                 }
@@ -126,7 +125,7 @@ class SetBasicInfo {
                     a.isLongNoteEnd[EndArea][boxNum] = false;
                     if (s.contains("PinballSeries")) {// 如果是连点
                         int noteID = Integer.parseInt(getInfo(s, "Note ID=\"", "\" note_type=\""));
-                        this.noteType[EndArea][boxNum] = seriesNum[noteID] + 1;
+                        a.noteType[EndArea][boxNum] = seriesNum[noteID] + 1;
                         String Son = getInfo(s, "\" Son=\"", "\" EndArea=\"");
                         if (!Son.equals("")) {
                             seriesNum[Integer.parseInt(Son)] = seriesNum[noteID] + 1;
@@ -141,7 +140,7 @@ class SetBasicInfo {
                         a.track[EndArea][boxNum] = 1;
                         a.isLongNoteStart[EndArea][boxNum] = false;
                         a.isLongNoteEnd[EndArea][boxNum] = false;
-                        this.noteType[EndArea][boxNum] = -1;
+                        a.noteType[EndArea][boxNum] = -1;
                     } else {// 无数据是白球
                         a.track[EndArea][boxNum] = 2;
                         a.isLongNoteStart[EndArea][boxNum] = false;
@@ -338,7 +337,7 @@ class SetBasicInfo {
         a.track = new int[5][st2Box + 5];
         a.isLongNoteStart = new boolean[5][st2Box + 5];
         a.isLongNoteEnd = new boolean[5][st2Box + 5];
-        this.noteType = new int[5][st2Box + 5];
+        a.noteType = new int[5][st2Box + 5];
         a.boxDescribe = new String[4][st2Box + 5];
     }
 
@@ -525,7 +524,7 @@ class SetBasicInfo {
                 if (a.track[track][box] == 0) {
                     if (isBlue) {
                         a.track[track][box] = 1;
-                        this.noteType[track][box] = 1;
+                        a.noteType[track][box] = 1;
                     } else {
                         a.track[track][box] = 3;
                     }
@@ -641,15 +640,15 @@ class SetBasicInfo {
                     a.track[track][box] = 3;
                     if (box == boxNum && !isFirst) {// 如果是滑条转折点
                         if (angle1 < angle2) {// 如果现在是右滑
-                            this.noteType[track][box] = pastDirection + 1;
+                            a.noteType[track][box] = pastDirection + 1;
                         } else {
-                            this.noteType[track][box] = pastDirection - 1;
+                            a.noteType[track][box] = pastDirection - 1;
                         }
                     } else {// 如果是滑条中间，或者是整个滑条的开头
                         if (angle1 < angle2) {
-                            this.noteType[track][box] = 2;
+                            a.noteType[track][box] = 2;
                         } else {
-                            this.noteType[track][box] = -2;
+                            a.noteType[track][box] = -2;
                         }
                     }
                     this.angle[track][box] = angle1;
@@ -668,9 +667,9 @@ class SetBasicInfo {
                 if (a.track[track][endBoxNum] == 0) {
                     a.track[track][endBoxNum] = 3;
                     if (angle1 < angle2) {
-                        this.noteType[track][endBoxNum] = 2;
+                        a.noteType[track][endBoxNum] = 2;
                     } else {// 因为是滑条，所以 angle1 和 angle2 必不相等
-                        this.noteType[track][endBoxNum] = -2;
+                        a.noteType[track][endBoxNum] = -2;
                     }
                     this.angle[track][endBoxNum] = angle1;
                     a.isLongNoteEnd[track][endBoxNum] = true;
@@ -768,11 +767,11 @@ class SetBasicInfo {
                 StringBuilder s = new StringBuilder(describe);
                 for (int track = 0; track < 5; track++) {
                     if (a.track[track][box] == 1) {// 如果为单点或滑键
-                        if (this.noteType[track][box] == 0) {// 如果为单点
+                        if (a.noteType[track][box] == 0) {// 如果为单点
                             s.append(idol2Str(track)).append("轨单点、");
                         } else {// 如果为滑键
-                            int from_track = this.noteType[track][box] / 10;
-                            int target_track = this.noteType[track][box] % 10;
+                            int from_track = a.noteType[track][box] / 10;
+                            int target_track = a.noteType[track][box] % 10;
                             boolean fromHaveLong = false;// 滑键开始位置是否有长条
                             if (a.track[from_track][box] == 3) {
                                 fromHaveLong = true;
@@ -804,8 +803,8 @@ class SetBasicInfo {
                         } else if (a.isLongNoteEnd[track][box]) {
                             boolean isSingleLong = true;
                             for (int i = 0; i < 5; i++) {
-                                if (this.noteType[i][box] != 0
-                                        && this.noteType[i][box] / 10 == track) {
+                                if (a.noteType[i][box] != 0
+                                        && a.noteType[i][box] / 10 == track) {
                                     isSingleLong = false;
                                 }
                             }
@@ -858,7 +857,7 @@ class SetBasicInfo {
                 s = new StringBuilder();
                 for (int i = -4; i <= -1; i++) {
                     for (int track = 0; track < 5; track++) {
-                        if (a.track[track][box + i] == 1 && this.noteType[track][box + i] == 0) {
+                        if (a.track[track][box + i] == 1 && a.noteType[track][box + i] == 0) {
                             s.append(idol2Str(track)).append("轨单点（cool）、");
                         }
                     }
@@ -868,7 +867,7 @@ class SetBasicInfo {
                 s = new StringBuilder(describe);
                 for (int i = 1; i <= 4; i++) {
                     for (int track = 0; track < 5; track++) {
-                        if (a.track[track][box + i] == 1 && this.noteType[track][box + i] == 0) {
+                        if (a.track[track][box + i] == 1 && a.noteType[track][box + i] == 0) {
                             s.append("、").append(idol2Str(track)).append("轨单点（cool）");
                         }
                     }
@@ -888,7 +887,7 @@ class SetBasicInfo {
                 StringBuilder s = new StringBuilder(describe);
                 for (int track = 0; track < 3; track++) {
                     if (a.track[track][box] == 1) {
-                        switch (this.noteType[track][box]) {
+                        switch (a.noteType[track][box]) {
                             case 0:
                                 s.append(pinball2Str(track)).append("单点、");
                                 break;
@@ -897,7 +896,7 @@ class SetBasicInfo {
                                 break;
                             default:
                                 s.append(pinball2Str(track))
-                                        .append("连点第 ").append(this.noteType[track][box]).append(" 个、");
+                                        .append("连点第 ").append(a.noteType[track][box]).append(" 个、");
                         }
                     } else if (a.track[track][box] == 2) {
                         s.append(pinball2Str(track)).append("白球、");
@@ -949,7 +948,7 @@ class SetBasicInfo {
                 for (int i = -4; i <= -1; i++) {
                     for (int track = 0; track < 3; track++) {
                         if (a.track[track][box + i] == 1) {
-                            switch (this.noteType[track][box + i]) {
+                            switch (a.noteType[track][box + i]) {
                                 case 0:
                                     s.append(pinball2Str(track)).append("单点（cool）、");
                                     break;
@@ -958,7 +957,7 @@ class SetBasicInfo {
                                     break;
                                 default:
                                     s.append(pinball2Str(track))
-                                            .append("连点第 ").append(this.noteType[track][box + i]).append(" 个（cool）、");
+                                            .append("连点第 ").append(a.noteType[track][box + i]).append(" 个（cool）、");
                             }
                         } else if (a.track[track][box + i] == 2) {
                             s.append(pinball2Str(track)).append("白球（cool）、");
@@ -971,7 +970,7 @@ class SetBasicInfo {
                 for (int i = 1; i <= 4; i++) {
                     for (int track = 0; track < 3; track++) {
                         if (a.track[track][box + i] == 1) {
-                            switch (this.noteType[track][box + i]) {
+                            switch (a.noteType[track][box + i]) {
                                 case 0:
                                     s.append("、").append(pinball2Str(track)).append("单点（cool）");
                                     break;
@@ -980,7 +979,7 @@ class SetBasicInfo {
                                     break;
                                 default:
                                     s.append("、").append(pinball2Str(track))
-                                            .append("连点第 ").append(this.noteType[track][box + i]).append(" 个（cool）");
+                                            .append("连点第 ").append(a.noteType[track][box + i]).append(" 个（cool）");
                             }
                         } else if (a.track[track][box + i] == 2) {
                             s.append("、").append(pinball2Str(track)).append("白球（cool）");
@@ -1002,7 +1001,7 @@ class SetBasicInfo {
                 StringBuilder s = new StringBuilder(describe);
                 for (int track = 0; track < 5; track++) {
                     if (a.track[track][box] == 1) {
-                        if (this.noteType[track][box] == 0) {
+                        if (a.noteType[track][box] == 0) {
                             s.append(bubbleDirection(track, box))
                                     .append("数字 ").append(this.noteNum2[track][box]).append(" 单点、");
                         } else {
@@ -1082,7 +1081,7 @@ class SetBasicInfo {
                 s = new StringBuilder();
                 for (int i = -4; i <= -1; i++) {
                     for (int track = 0; track < 5; track++) {
-                        if (a.track[track][box + i] == 1 && this.noteType[track][box + i] == 0) {
+                        if (a.track[track][box + i] == 1 && a.noteType[track][box + i] == 0) {
                             s.append(bubbleDirection(track, box))
                                     .append("数字 ").append(this.noteNum2[track][box + i]).append(" 单点（cool）、");
                         }
@@ -1093,7 +1092,7 @@ class SetBasicInfo {
                 s = new StringBuilder(describe);
                 for (int i = 1; i <= 4; i++) {
                     for (int track = 0; track < 5; track++) {
-                        if (a.track[track][box + i] == 1 && this.noteType[track][box + i] == 0) {
+                        if (a.track[track][box + i] == 1 && a.noteType[track][box + i] == 0) {
                             s.append("、").append(bubbleDirection(track, box))
                                     .append("数字 ").append(this.noteNum2[track][box + i]).append(" 单点（cool）");
                         }
@@ -1118,7 +1117,7 @@ class SetBasicInfo {
                     } else if (a.track[track][box] == 4) {// 如果为滑点
                         s.append(crescent2Str(track, box)).append("滑点、");
                     } else if (a.track[track][box] == 3) {// 如果为长条或滑条
-                        if (this.noteType[track][box] == 0) {// 长条三种
+                        if (a.noteType[track][box] == 0) {// 长条三种
                             if (a.isLongNoteStart[track][box]) {
                                 s.append(crescent2Str(track, box)).append("长条开始、");
                             } else if (a.isLongNoteEnd[track][box]) {
@@ -1128,7 +1127,7 @@ class SetBasicInfo {
                             }
                         } else {// 滑条四种，开头中间结尾拐
                             s.append(crescent2Str(track, box));
-                            int type = this.noteType[track][box];
+                            int type = a.noteType[track][box];
                             if (type < 0) {
                                 s.append("左滑条");
                             }else {

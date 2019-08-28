@@ -47,7 +47,7 @@ class XMLInfo {
 
     private int mode;// 模式，以此去掉按键分数细微误差，同时确定长条类型（尤其是泡泡蓝条）
 
-    String getStrMode() throws SetInfoException {
+    String getStrMode() {
         switch (this.mode) {
             case 1:
                 return "星动";
@@ -58,7 +58,7 @@ class XMLInfo {
             case 4:
                 return "弦月";
             default:
-                throw new SetInfoException(1);
+                return "";
         }
     }
 
@@ -145,7 +145,7 @@ class XMLInfo {
     // 适用于星弹，但泡泡输出 combo 时需 +1
 
     int[][] track;
-    // int[][] noteType;
+    int[][] noteType;
     boolean[][] isLongNoteStart;
     boolean[][] isLongNoteEnd;
 

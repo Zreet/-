@@ -330,23 +330,45 @@ class Calculate {
     /**
      * 分数突变是指在20、50、100combo这三个位置，存在按键基础分增加的情况。
      * 这时候必须先点击分数少的按键，再点击分数多的按键，以达到分数最大化。
+     * <p>
+     * 但是，星动是有特例的。
+     * 单长条滑动时，由于同一根长条的按键有先后顺序，所以不应显示分数突变。
      *
      * @param a   星弹泡弦任意对象
      * @param box 刚好combo变化时，有两个以上的按键的位置
      * @return 如果键型不同，那么返回 true；键型相同则无影响，返回 false
      */
     private boolean haveDifferent(XMLInfo a, int box) {
-        int type = 0;
-        boolean haveDifferent = false;
-        for (int track = 0; track < 5; track++) {
-            if (type == 0) {
-                type = a.track[track][box];
-            } else if (a.track[track][box] != 0 && a.track[track][box] != type) {
-                haveDifferent = true;
-                break;
+        if (a.getStrMode().equals("星动")) {
+            for (int i = 0; i < 4; i++) {
+                for (int j = i + 1; j < 5; j++) {
+                    if (a.track[i][box] != 0 && a.track[j][box] != 0 && a.track[i][box] != a.track[j][box]) {
+                        // 如果是同一根长条，并且其余位置没有键，则略过
+                        if ((a.track[i][box] == 1 && a.noteType[i][box] > 0 && a.track[j][box] == 3)
+                                || (a.track[i][box] == 3 && a.track[j][box] == 1 && a.noteType[j][box] > 0)) {
+                            int slip = a.track[i][box] == 1 ? i : j;
+                            int longNote = a.track[i][box] == 3 ? i : j;
+                            if (a.noteType[slip][box] / 10 == longNote) {
+                                continue;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        } else {
+            int type = 0;
+            for (int i = 0; i < 5; i++) {
+                if (a.track[i][box] != 0) {
+                    if (type == 0) {
+                        type = a.track[i][box];
+                    } else if (a.track[i][box] != type) {
+                        return true;
+                    }
+                }
             }
         }
-        return haveDifferent;
+        return false;
     }
 
 

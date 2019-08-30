@@ -23,8 +23,8 @@ class Calculate {
         this.boxIndex = new double[3][st2Box + 5];
         this.fireScore = new int[4][st2Box + 5];
         this.fireIndex = new double[2][st2Box + 5];
-        this.partScore = new int[2][st2Box - note2Box + 1][ExtremeFireLength];
-        this.partIndex = new double[st2Box - note2Box + 1][ExtremeFireLength];
+        this.partScore = new int[2][st2Box + 1][ExtremeFireLength];
+        this.partIndex = new double[st2Box + 1][ExtremeFireLength];
     }
 
     static int CommonFireLength = 156;
@@ -540,9 +540,9 @@ class Calculate {
 
     private int getPartScore(boolean isLimitSkill, int start, int end) {
         if (isLimitSkill) {
-            return this.partScore[0][start - note2Box][end - start];
+            return this.partScore[0][start][end - start];
         } else {
-            return this.partScore[1][start - note2Box][end - start];
+            return this.partScore[1][start][end - start];
         }
     }
 
@@ -550,7 +550,7 @@ class Calculate {
     private double[][] partIndex;// b段任意长度的指数增加和，供双排存气计算用
 
     private double getPartIndex(int start, int end) {
-        return this.partIndex[start - note2Box][end - start];
+        return this.partIndex[start][end - start];
     }
 
 

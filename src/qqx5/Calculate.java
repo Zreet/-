@@ -560,15 +560,14 @@ class Calculate {
      */
     private void part() {
         if (note1Box != note2Box) {// 有中场 st 说明两次爆气需计算存气，有必要计算 part
-            for (int box = note2Box + ExtremeFireLength + 1; box < st2Box - note2Box; box++) {
+            for (int box = note2Box; box < st2Box + 1; box++) {
                 int limitScore = getBoxScore(true, true, box);
                 int fireScore = getBoxScore(false, true, box);
                 double index = getBoxIndex(true, box);
                 for (int i = 1; i < ExtremeFireLength; i++) {
-                    // 实际上 i 的最大值还可以减小，后面的数据用不到（与存气削弱规定有关）
-                    this.partScore[0][box - note2Box - i][i] = this.partScore[0][box - note2Box - i][i - 1] + limitScore;
-                    this.partScore[1][box - note2Box - i][i] = this.partScore[1][box - note2Box - i][i - 1] + fireScore;
-                    this.partIndex[box - note2Box - i][i] = this.partIndex[box - note2Box - i][i - 1] + index;
+                    this.partScore[0][box - i][i] = this.partScore[0][box - i][i - 1] + limitScore;
+                    this.partScore[1][box - i][i] = this.partScore[1][box - i][i - 1] + fireScore;
+                    this.partIndex[box - i][i] = this.partIndex[box - i][i - 1] + index;
                 }
             }
         }
